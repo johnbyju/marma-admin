@@ -129,8 +129,8 @@ export default function CandidateDashboard() {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-900 text-white">
-                <tr>
+              <thead className="bg-gray-900  text-white">
+                <tr className='rounded-lg border border-black'>
                   <th className="px-4 py-3 text-left">Candidate ID</th>
                   <th className="px-4 py-3 text-left">Name</th>
                   <th className="px-4 py-3 text-left">Applied Role</th>

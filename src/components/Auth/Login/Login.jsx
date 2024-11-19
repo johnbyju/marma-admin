@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -24,22 +25,14 @@ export default function Login() {
   return (
     <>
       <div className="min-h-screen flex">
-        <div className="flex-1 flex items-center justify-center bg-black">
-          <div className="text-center px-14">
-            <img src="/logo.png" alt="" />
-          </div>
-        </div>
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="max-w-md w-full space-y-8">
             <div className="text-start">
               <h1 className="text-5xl font-medium text-gray-900">Welcome Back..!👋</h1>
               <p className="mt-2 text-start pl-3 text-xl text-gray-600">Login to Continue..</p>
             </div>
-
             <form onSubmit={handleSubmit} className="mt-8 ">
-              <div className="space-y-6 ">
-
-
+              <div className="space-y-6">
                 <div>
                   <label htmlFor="email" className="block text-lg font-medium text-gray-700">
                     Email id
@@ -72,7 +65,7 @@ export default function Login() {
                   />
                 </div>
               </div>
-              <p className='m-2 text-end'>Forgot Password?</p>
+              <p className='m-2 text-end text-md font-medium'><Link to='/forgotpassword'>Forgot Password?</Link></p>
               {/* this down section */}
               <div className='flex flex-col pt-40'>
                 <button
@@ -81,7 +74,7 @@ export default function Login() {
                 >
                   Login
                 </button>
-                <p className="text-center">Don't  have an account? <br /> <a href="#" className="font-bold">Create Account</a></p>
+                <p className="text-center">Don't  have an account? <br /> <Link to='signup' className="font-bold">Create Account</Link></p>
               </div>
               
             </form>

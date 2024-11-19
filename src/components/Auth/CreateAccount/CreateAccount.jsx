@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function CreateAccount() {
   const [formData, setFormData] = useState({
@@ -24,11 +25,7 @@ export default function CreateAccount() {
   return (
     <>
       <div className="min-h-screen flex">
-        <div className="flex-1 flex items-center justify-center bg-black">
-          <div className="text-center px-14">
-           <img src="/logo.png" alt="" />
-          </div>
-        </div>
+       
         <div className="flex-1 flex items-center justify-center bg-white p-8">
           <div className="max-w-md w-full space-y-8">
             <div className="text-center">
@@ -109,7 +106,7 @@ export default function CreateAccount() {
               >
                 Create
               </button>
-              <p className="text-center">Already have an account? <a href="#" className="font-bold">Login</a></p>
+              <p className="text-center">Already have an account? <Link to='/' className="font-bold">Login</Link></p>
             </form>
           </div>
         </div>

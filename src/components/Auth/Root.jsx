@@ -1,14 +1,25 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
 import Login from './Login/Login';
 import CreateAccount from './CreateAccount/CreateAccount';
 import ForgotPassword from './ForgotPassword/ForgotPassword';
+import Candidatedashboard from '../JobList/Joblisting';
+import EventDashboard from '../event/Eventdashboard';
 
 
 export default function Root() {
+
+  const location = useLocation();
+
+
+  const routesWithLayout = ['/', '/signup', '/forgotpassword'];
+
+  const showStaticLayout = routesWithLayout.includes(location.pathname);
   return (
-    
-      <div className="min-h-screen flex">
+    <>
+    {
+      showStaticLayout ? (
+        <div className="min-h-screen flex">
         {/* Left side (constant) */}
         <div className="flex-1 flex items-center justify-center bg-black">
           <div className="text-center px-14">
@@ -17,14 +28,27 @@ export default function Root() {
         </div>
 
         {/* Right side (dynamic content based on route) */}
-        <div className="flex-1 flex items-center justify-center bg-white p-8">
+        <div className="flex-1 flex items-center  bg-white ">
           <Routes>
-            <Route path="/" element={<Login/>} />
+            <Route path="/" element={<Login />} />
             <Route path="/forgotpassword" element={<ForgotPassword/>} />
-            <Route path="/signup" element={<CreateAccount/>} />
+            <Route path="/signup" element={<CreateAccount />} />
           </Routes>
+
         </div>
       </div>
-    
+      ) :(
+        // after logedin or where client side rendering time these route will not show the static left side logo section
+        <Routes>
+        <Route path="/candidatelist" element={<Candidatedashboard/>} />
+        <Route path="/eventlist" element={<EventDashboard/>} />
+      </Routes>
+      )
+    }
+     
+    </>
+
+
+
   );
 }

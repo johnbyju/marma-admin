@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function CandidateDashboard() {
+export default function Candidatedashboard() {
   const [activeTab, setActiveTab] = useState('Job')
   const [sortBy, setSortBy] = useState('newest')
 

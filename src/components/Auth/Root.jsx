@@ -5,6 +5,7 @@ import CreateAccount from './CreateAccount/CreateAccount';
 import ForgotPassword from './ForgotPassword/ForgotPassword';
 import Candidatedashboard from '../JobList/Joblisting';
 import EventDashboard from '../event/Eventdashboard';
+import Dashboard from '../JobList/Joblisting';
 
 
 export default function Root() {
@@ -41,7 +42,7 @@ export default function Root() {
         // after logedin or where client side rendering time these route will not show the static left side logo section
         <Routes>
         <Route path="/candidatelist" element={<Candidatedashboard/>} />
-        <Route path="/eventlist" element={<EventDashboard/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
       </Routes>
       )
     }

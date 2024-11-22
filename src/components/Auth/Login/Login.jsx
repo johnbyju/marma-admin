@@ -18,15 +18,17 @@ const [isLoading,setIsLoading]=useState(false);
     // console.log('Form submitted:', formData);
     try{
       const response = await login({email,password})
-      console.log(response,'==');
+     
 
       if(response.status === 200){
+        const token = response.data.token;
+        localStorage.setItem("token",token)
         await Swal.fire({
           position: "top-end",
           icon: "success",
           title: "Redierct to Dashborad",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1000
         });
           navigate('/candidatelist')
       }

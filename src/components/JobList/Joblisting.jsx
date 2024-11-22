@@ -1,34 +1,77 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, LogOut, PlusSquare, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {fetchCandidates, fetchEvents } from '../../API/Api';
+import Swal from 'sweetalert2';
+
+
 
 export default function Dashboard() {
+  console.log("check the function");
   const [activeTab, setActiveTab] = useState('Job');
   const [sortBy, setSortBy] = useState('newest');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [Candidates, setCandidates] = useState([])
+  const [Events, setEvents] = useState([])
+
+  const navigate =useNavigate()
+
+  const token = localStorage.getItem("token");
+
+  // console.log('this is my token',token);
 
   // Job candidates data
   const candidates = [
     {
       id: '#1101',
       name: 'Geerthika V',
-      role: 'Process Manager',
+      email: 'Process Manager',
       applyDate: '12-11-2024',
       department: 'Technical',
       expectedSalary: '10.5 CTC',
       currentSalary: '6.5 CTC',
     },
-    // Add more candidate objects here
+    
   ];
 
   // Event data
-  const events = [
-    {
-      id: '#2101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    // Add more event objects here
-  ];
+ 
+
+  // useEffect( ()=>{
+  //  if(!token){
+  //   navigate('/');
+  //  } 
+  // },[navigate])
+
+
+
+  // API calling 
+  useEffect( ()=>{
+   
+    const fetchData = async ()=>{
+      try{
+        if(activeTab ==='Job'){
+          const response = await fetchCandidates();
+          setCandidates(response.data);
+        }
+        if(activeTab ==='Event'){
+          const response =await fetchEvents();
+          console.log("this is my table",response);
+          setEvents(response);
+        }
+      }
+      catch(err){
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: err,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      };
+    }
+    fetchData();
+  },[activeTab])
 
   const handleDelete = (id) => {
     console.log(`Delete item with ID: ${id}`);
@@ -39,6 +82,19 @@ export default function Dashboard() {
     console.log(`View event at: ${link}`);
     // Add view event functionality here
   };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    Swal.fire({
+      icon: "success",
+      title: "Logged out successfully",
+      timer: 1000,
+      showConfirmButton: false,
+    }).then(() => {
+      navigate("/");
+    });
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,9 +114,9 @@ export default function Dashboard() {
 
           {/* Modal below the profile div */}
           {isModalOpen && (
-            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 ">
+            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 " onClick={handleDelete}>
               <div className="flex justify-center items-center flex-col">
-                <button className=" text-black flex rounded-md ">
+                <button className=" text-black flex rounded-md" onClick={handleLogout}>
                   <LogOut className='text-black h-5 ' /> Logout
                 </button>
               </div>
@@ -127,11 +183,11 @@ export default function Dashboard() {
                     <>
                       <th className="px-4 py-3 text-left">Candidate ID</th>
                       <th className="px-4 py-3 text-left">Name</th>
-                      <th className="px-4 py-3 text-left">Applied Role</th>
-                      <th className="px-4 py-3 text-left">Apply Date</th>
-                      <th className="px-4 py-3 text-left">Department</th>
-                      <th className="px-4 py-3 text-left">Expected Salary</th>
+                      <th className="px-4 py-3 text-left">Email</th>
+                      <th className="px-4 py-3 text-left">applyingDesignation</th>
+                      <th className="px-4 py-3 text-left">experience</th>
                       <th className="px-4 py-3 text-left">Current Salary</th>
+                      <th className="px-4 py-3 text-left">Expected Salary</th>
                       <th className="px-4 py-3 text-left">Resume</th>
                     </>
                   ) : (
@@ -147,24 +203,23 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {activeTab === 'Job'
-                  ? candidates.map((candidate, index) => (
-                    <tr key={index} className="hover:bg-gray-50 border-b border-gray-200">
+                  ? Candidates.map((candidate, index) => (
+                    <tr key={candidate.id} className="hover:bg-gray-50 border-b border-gray-200">
                       <td className="px-4 py-3">{candidate.id}</td>
                       <td className="px-4 py-3">{candidate.name}</td>
-                      <td className="px-4 py-3">{candidate.role}</td>
-                      <td className="px-4 py-3">{candidate.applyDate}</td>
-                      <td className="px-4 py-3">{candidate.department}</td>
-                      <td className="px-4 py-3">{candidate.expectedSalary}</td>
-                      <td className="px-4 py-3">{candidate.currentSalary}</td>
+                      <td className="px-4 py-3">{candidate.email}</td>
+                      <td className="px-4 py-3">{candidate.applyingDesignation}</td>
+                      <td className="px-4 py-3">{candidate.experience}</td>
+                      <td className="px-4 py-3">{candidate.currentsalary}</td>
+                      <td className="px-4 py-3">{candidate.expectedsalary}</td>
                       <td className="px-4 py-3">
-                        <button className="text-blue-600 hover:text-blue-800">
-                          View Resume
-                        </button>
+                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'></a>                     
+                          View Resume 
                       </td>
                     </tr>
                   ))
-                  : events.map((event, index) => (
-                    <tr key={index} className="hover:bg-gray-50 border-b border-gray-200">
+                  : Events.map((event, index) => (
+                    <tr key={event.id} className="hover:bg-gray-50 border-b border-gray-200">
                       <td className="px-4 py-3">{event.id}</td>
                       <td className="px-4 py-3">{event.link}</td>
                       <td className="px-4 py-3">{event.date}</td>

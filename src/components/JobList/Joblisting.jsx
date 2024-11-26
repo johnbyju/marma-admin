@@ -1,66 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, LogOut, PlusSquare, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import {fetchCandidates, fetchEvents } from '../../API/Api';
+import { fetchCandidates, fetchEvents } from '../../API/Api';
 import Swal from 'sweetalert2';
 
 
 
 export default function Dashboard() {
   console.log("check the function");
+  const [jobModal, setJobModal] = useState(false)
   const [activeTab, setActiveTab] = useState('Job');
   const [sortBy, setSortBy] = useState('newest');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [Candidates, setCandidates] = useState([])
   const [Events, setEvents] = useState([])
 
-  const navigate =useNavigate()
+  const navigate = useNavigate()
 
-  const token = localStorage.getItem("token");
 
-  // console.log('this is my token',token);
+  const openModal = () => setJobModal(true)
+  const closeModal = () => setJobModal(true)
 
-  // Job candidates data
-  const candidates = [
-    {
-      id: '#1101',
-      name: 'Geerthika V',
-      email: 'Process Manager',
-      applyDate: '12-11-2024',
-      department: 'Technical',
-      expectedSalary: '10.5 CTC',
-      currentSalary: '6.5 CTC',
-    },
-    
-  ];
-
-  // Event data
- 
-
-  // useEffect( ()=>{
-  //  if(!token){
-  //   navigate('/');
-  //  } 
-  // },[navigate])
 
 
 
   // API calling 
-  useEffect( ()=>{
-   
-    const fetchData = async ()=>{
-      try{
-        if(activeTab ==='Job'){
+  useEffect(() => {
+
+    const fetchData = async () => {
+      try {
+        if (activeTab === 'Job') {
           const response = await fetchCandidates();
           setCandidates(response.data);
         }
-        if(activeTab ==='Event'){
-          const response =await fetchEvents();
-          console.log("this is my table",response);
+        if (activeTab === 'Event') {
+          const response = await fetchEvents();
+          console.log("this is my table", response);
           setEvents(response);
         }
       }
-      catch(err){
+      catch (err) {
         Swal.fire({
           position: "center",
           icon: "error",
@@ -71,7 +50,7 @@ export default function Dashboard() {
       };
     }
     fetchData();
-  },[activeTab])
+  }, [activeTab])
 
   const handleDelete = (id) => {
     console.log(`Delete item with ID: ${id}`);
@@ -94,7 +73,7 @@ export default function Dashboard() {
       navigate("/");
     });
   };
-  
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,9 +123,23 @@ export default function Dashboard() {
             </button>
           </div>
           <div>
-            <div className='flex border rounded-md border-black p-2'>
-              <p className='flex gap-2'>{activeTab=== 'Job'?'Post Job':'Add Event'}<PlusSquare/></p>
-            </div>
+            <button className='flex border rounded-md border-black p-2'>
+              <p className='flex gap-2'>{activeTab === 'Job' ? 'Post Job' : 'Add Event'}<PlusSquare /></p>
+            </button>
+            {isModalOpen && activeTab === 'Job' && (
+              <JobModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleJobSubmit}
+              />
+            )}
+            {isModalOpen && activeTab === 'Event' && (
+              <EventModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleEventSubmit}
+              />
+            )}  
           </div>
         </div>
 
@@ -213,8 +206,8 @@ export default function Dashboard() {
                       <td className="px-4 py-3">{candidate.currentsalary}</td>
                       <td className="px-4 py-3">{candidate.expectedsalary}</td>
                       <td className="px-4 py-3">
-                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'></a>                     
-                          View Resume 
+                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'></a>
+                        View Resume
                       </td>
                     </tr>
                   ))
@@ -249,3 +242,151 @@ export default function Dashboard() {
     </div>
   );
 }
+
+const JobModal = ({ isOpen, onClose, onSubmit }) => {
+
+
+  const [formdata, setFormData] = useState({
+    role: '',
+    department: '',
+    employmentType: '',
+    description: '',
+  })
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formdata)
+    onClose()
+  }
+  if (!isOpen) return null
+  return (
+    <>
+
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white p-6 rounded-lg w-full max-w-md">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Add Job</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <input
+                type="text"
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                placeholder="Enter Role"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                Department
+              </label>
+              <select
+                id="department"
+                name="department"
+                value={formData.department}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                required
+              >
+                <option value="">Select Department</option>
+                <option value="engineering">All</option>
+                <option value="design">Development</option>
+                <option value="marketing">Design</option>
+                <option value="sales">Marketing</option>
+                <option value="operations">Human Resourse</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700">
+                Employment Type
+              </label>
+              <select
+                id="employmentType"
+                name="employmentType"
+                value={formData.employmentType}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                required
+              >
+                <option value="">Select type</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter job description"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                rows="4"
+                required
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>v
+    </>
+  )
+
+}
+
+
+export function AddJobModal({ isOpen, onClose, onSubmit }) {
+  const [formData, setFormData] = useState({
+    role: '',
+    department: '',
+    employmentType: '',
+    description: ''
+  })
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSubmit(formData)
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+
+}
+

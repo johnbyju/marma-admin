@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, LogOut, PlusSquare, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { fetchCandidates, fetchEvents } from '../../API/Api';
+import { deleteEvent, fetchCandidates, fetchEvents } from '../../API/Api';
 import Swal from 'sweetalert2';
+import JobModal from './JobModal';
+import EventModal from './EventModal';
+
 
 
 
 export default function Dashboard() {
   console.log("check the function");
-  const [jobModal, setJobModal] = useState(false)
-  const [activeTab, setActiveTab] = useState('Job');
   const [sortBy, setSortBy] = useState('newest');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [Candidates, setCandidates] = useState([])
   const [Events, setEvents] = useState([])
+  const [activeTab, setActiveTab] = useState('Job');
+  const [isTabOpen, setIsTabOpen] = useState(false);
+  const [jobModal, setJobModal] = useState(false)
+  const [eventModal,setEventModal] =useState(false)
+
+
+
 
   const navigate = useNavigate()
 
 
-  const openModal = () => setJobModal(true)
-  const closeModal = () => setJobModal(true)
+
 
 
 
@@ -52,14 +58,62 @@ export default function Dashboard() {
     fetchData();
   }, [activeTab])
 
-  const handleDelete = (id) => {
-    console.log(`Delete item with ID: ${id}`);
-    // Add delete functionality here
-  };
+  const handleJobSubmit =(e)=>{
+console.log("hi")
+  }
+  const handleEventSubmit =(e)=>{
+    console.log("hi")
+  }
+
+
+
+// Your handleDelete function
+const handleDelete = async (id) => {
+  try {
+    // Call the delete API
+    const response = await deleteEvent(id);
+    console.log(response,'response');
+
+    if (response.status==200) {
+      // Show success alert
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'The event has been deleted successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then( async()=>{
+        const response = await fetchEvents();
+        setEvents(response)
+      })
+    } else {
+      // Handle API error
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to delete the event.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  } catch (error) {
+    // Handle exceptions
+    Swal.fire({
+      title: 'Error!',
+      text: 'An error occurred while deleting the event.',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    console.error(error);
+  }
+};
+
 
   const handleViewEvent = (link) => {
-    console.log(`View event at: ${link}`);
-    // Add view event functionality here
+    if(link){
+      window.open(link,'_blank','noopener,noreferer')
+    }
+    else{
+      console.error('The Link is not Working')
+    }
   };
 
   const handleLogout = () => {
@@ -73,6 +127,31 @@ export default function Dashboard() {
       navigate("/");
     });
   };
+  const OpenModal=(data)=>{
+
+if (data=="Job"){
+  setJobModal(true);
+}
+if (data=="Event"){
+  setEventModal(true)
+
+}
+
+  }
+  console.log(activeTab ,eventModal,'Deerrrr');
+
+  const addEvent = (newEvent) => {
+    setEvents((prevEvents) => [newEvent, ...prevEvents]); // Update state locally
+  };
+
+  const currentEvent =(e)=>{
+    setEvents( (prev)=>[e,prev])
+  }
+
+  useEffect(() => {
+    fetchEvents(); // Fetch events on component mount
+  }, []);
+
 
 
   return (
@@ -82,17 +161,17 @@ export default function Dashboard() {
         <div>
           <img src="/logob.png" alt="Logo" style={{ width: '130px' }} />
         </div>
-        <div className="relative flex items-center" onClick={() => setIsModalOpen((prev) => !prev)}>
+        <div className="relative flex items-center" onClick={() => setIsTabOpen((prev) => !prev)}>
           <div className="flex flex-col items-center gap-2 text-sm">
             <span>Mathankumar</span>
             <span className="text-gray-500">HR Manager</span>
           </div>
           <div className="ml-2">
-            {isModalOpen ? <ChevronUp /> : <ChevronDown />}
+            {isTabOpen ? <ChevronUp /> : <ChevronDown />}
           </div>
 
           {/* Modal below the profile div */}
-          {isModalOpen && (
+          {isTabOpen && (
             <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 " onClick={handleDelete}>
               <div className="flex justify-center items-center flex-col">
                 <button className=" text-black flex rounded-md" onClick={handleLogout}>
@@ -123,23 +202,26 @@ export default function Dashboard() {
             </button>
           </div>
           <div>
-            <button className='flex border rounded-md border-black p-2'>
+            <button className='flex border rounded-md border-black p-2' onClick={() => OpenModal(activeTab)}>
               <p className='flex gap-2'>{activeTab === 'Job' ? 'Post Job' : 'Add Event'}<PlusSquare /></p>
             </button>
-            {isModalOpen && activeTab === 'Job' && (
+            {activeTab === 'Job' && jobModal && (
               <JobModal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                onSubmit={handleJobSubmit}
+                isOpen={jobModal}
+                onClose={() => setJobModal(false)} // Close modal when it is closed
+                // className='fixed top-4 right-4'
               />
             )}
-            {isModalOpen && activeTab === 'Event' && (
-              <EventModal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                onSubmit={handleEventSubmit}
-              />
-            )}  
+            {
+              activeTab ==='Event' &&eventModal &&(
+                <EventModal
+                isOpen={eventModal}
+                updatedEventprops={currentEvent}
+                onClose={ ()=>setEventModal(false)}
+                // onSubmit={handleEventSubmit}
+                />
+              )
+            }
           </div>
         </div>
 
@@ -206,14 +288,15 @@ export default function Dashboard() {
                       <td className="px-4 py-3">{candidate.currentsalary}</td>
                       <td className="px-4 py-3">{candidate.expectedsalary}</td>
                       <td className="px-4 py-3">
-                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'></a>
+                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'>
                         View Resume
+                        </a>
                       </td>
                     </tr>
                   ))
                   : Events.map((event, index) => (
                     <tr key={event.id} className="hover:bg-gray-50 border-b border-gray-200">
-                      <td className="px-4 py-3">{event.id}</td>
+                      <td className="px-4 py-3">{event._id}</td>
                       <td className="px-4 py-3">{event.link}</td>
                       <td className="px-4 py-3">{event.date}</td>
                       <td className="px-4 py-3">
@@ -226,7 +309,7 @@ export default function Dashboard() {
                       </td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => handleDelete(event.id)}
+                          onClick={() => handleDelete(event._id)}
                           className="text-gray-600 hover:text-red-600"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -242,151 +325,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-const JobModal = ({ isOpen, onClose, onSubmit }) => {
-
-
-  const [formdata, setFormData] = useState({
-    role: '',
-    department: '',
-    employmentType: '',
-    description: '',
-  })
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formdata)
-    onClose()
-  }
-  if (!isOpen) return null
-  return (
-    <>
-
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div className="bg-white p-6 rounded-lg w-full max-w-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Add Job</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <input
-                type="text"
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                placeholder="Enter Role"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="department" className="block text-sm font-medium text-gray-700">
-                Department
-              </label>
-              <select
-                id="department"
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                required
-              >
-                <option value="">Select Department</option>
-                <option value="engineering">All</option>
-                <option value="design">Development</option>
-                <option value="marketing">Design</option>
-                <option value="sales">Marketing</option>
-                <option value="operations">Human Resourse</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700">
-                Employment Type
-              </label>
-              <select
-                id="employmentType"
-                name="employmentType"
-                value={formData.employmentType}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                required
-              >
-                <option value="">Select type</option>
-                <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Enter job description"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                rows="4"
-                required
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Submit
-            </button>
-          </form>
-        </div>
-      </div>v
-    </>
-  )
-
-}
-
-
-export function AddJobModal({ isOpen, onClose, onSubmit }) {
-  const [formData, setFormData] = useState({
-    role: '',
-    department: '',
-    employmentType: '',
-    description: ''
-  })
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit(formData)
-    onClose()
-  }
-
-  if (!isOpen) return null
-
-
-}
-

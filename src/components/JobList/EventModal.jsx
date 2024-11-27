@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { PostEventApi, PostJobAPi, fetchEvents } from '../../API/Api';
+import { PostEventApi, PostJobAPi, fetchEvents,} from '../../API/Api';
+import Swal from 'sweetalert2';
 
-function EventModal({ isOpen, onClose,updatedEventprops}) {
+function EventModal({ isOpen, onClose,setEvents}) {
   if (!isOpen) return null;
 
 
@@ -17,12 +18,21 @@ function EventModal({ isOpen, onClose,updatedEventprops}) {
 
   const handleEventChange = async(e) => {
     e.preventDefault();
-    const res= await PostEventApi (formdata);
-
-    const getUpdatedEvent = await fetchEvents()
-    updatedEventprops(getUpdatedEvent)
-    
+  const response = await PostEventApi (formdata);
+  console.log(response,'whgewipefeo');
+  if(response.status === 200 || response.status === 201){
     onClose()
+     Swal.fire({
+      title: 'Added Suceesfully..!',
+      text: 'The event has been Added successfully.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+     })
+    const afterUpdatedEvent =await fetchEvents();
+    console.log(afterUpdatedEvent,'sefooefwoefdv');
+    setEvents(afterUpdatedEvent)
+  }
+    
   }
   return (
     <>

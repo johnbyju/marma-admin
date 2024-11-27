@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, LogOut, PlusSquare, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogOut, PlusSquare, SlidersHorizontal, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { deleteEvent, fetchCandidates, fetchEvents } from '../../API/Api';
 import Swal from 'sweetalert2';
 import JobModal from './JobModal';
 import EventModal from './EventModal';
-
 
 
 
@@ -17,23 +16,20 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('Job');
   const [isTabOpen, setIsTabOpen] = useState(false);
   const [jobModal, setJobModal] = useState(false)
-  const [eventModal,setEventModal] =useState(false)
-
+  const [eventModal, setEventModal] = useState(false)
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [loading, setloading] = useState(false)
 
 
 
   const navigate = useNavigate()
 
 
-
-
-
-
-
   // API calling 
   useEffect(() => {
 
     const fetchData = async () => {
+      setLoading(true);
       try {
         if (activeTab === 'Job') {
           const response = await fetchCandidates();
@@ -53,104 +49,115 @@ export default function Dashboard() {
           showConfirmButton: false,
           timer: 1500
         });
-      };
+      }
+      finally{
+        setLoading(false);
+      }
     }
     fetchData();
   }, [activeTab])
 
-  const handleJobSubmit =(e)=>{
-console.log("hi")
-  }
-  const handleEventSubmit =(e)=>{
-    console.log("hi")
-  }
 
 
 
-// Your handleDelete function
-const handleDelete = async (id) => {
-  try {
-    // Call the delete API
-    const response = await deleteEvent(id);
-    console.log(response,'response');
 
-    if (response.status==200) {
-      // Show success alert
-      Swal.fire({
-        title: 'Deleted!',
-        text: 'The event has been deleted successfully.',
-        icon: 'success',
-        confirmButtonText: 'OK',
-      }).then( async()=>{
-        const response = await fetchEvents();
-        setEvents(response)
-      })
-    } else {
-      // Handle API error
-      Swal.fire({
-        title: 'Error!',
-        text: 'Failed to delete the event.',
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+  // Your handleDelete function
+  const handleDelete = async (id) => {
+    try {
+      // Call the delete API
+      const response = await deleteEvent(id);
+      console.log(response, 'response');
+
+      if (response.status == 200) {
+        // Show success alert
+        await Swal.fire({
+          title: 'Deleted!',
+          text: 'The event has been deleted successfully.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        })
+
+        const updatedEvents = await fetchEvents();
+        setEvents(updatedEvents)
+        console.log(updatedEvents, 'updated events');
+      } else {
+        // Handle API error
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete the event.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    } catch (error) {
+      // // Handle exceptions
+      // Swal.fire({
+      //   title: 'Error!',
+      //   text: 'An error occurred while deleting the event.',
+      //   icon: 'error',
+      //   confirmButtonText: 'OK',
+      // });
+      // console.error(error);
     }
-  } catch (error) {
-    // Handle exceptions
-    Swal.fire({
-      title: 'Error!',
-      text: 'An error occurred while deleting the event.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    console.error(error);
-  }
-};
+  };
 
 
   const handleViewEvent = (link) => {
-    if(link){
-      window.open(link,'_blank','noopener,noreferer')
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferer')
     }
-    else{
+    else {
       console.error('The Link is not Working')
     }
   };
 
   const handleLogout = () => {
-    localStorage.clear();
     Swal.fire({
-      icon: "success",
-      title: "Logged out successfully",
-      timer: 1000,
-      showConfirmButton: false,
-    }).then(() => {
-      navigate("/");
+      title: 'Are you sure?',
+      text: "You will be logged out!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, logout!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem('token');
+        navigate("/", { replace: true });
+        preventBackNavigation();
+        Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
+      }
     });
   };
-  const OpenModal=(data)=>{
 
-if (data=="Job"){
-  setJobModal(true);
-}
-if (data=="Event"){
-  setEventModal(true)
+  const blockBackNavigation = () => {
+    window.history.pushState(null, "", window.location.href); // Push the current URL to the history
 
-}
-
-  }
-  console.log(activeTab ,eventModal,'Deerrrr');
-
-  const addEvent = (newEvent) => {
-    setEvents((prevEvents) => [newEvent, ...prevEvents]); // Update state locally
+    // Add a listener to prevent back navigation
+    window.addEventListener("popstate", function () {
+      window.history.pushState(null, "", window.location.href); // Continuously push the same state
+    });
   };
 
-  const currentEvent =(e)=>{
-    setEvents( (prev)=>[e,prev])
-  }
-
   useEffect(() => {
-    fetchEvents(); // Fetch events on component mount
+    blockBackNavigation();
+
+    return () => {
+      window.removeEventListener("popstate", blockBackNavigation);
+    };
   }, []);
+
+
+  const OpenModal = (data) => {
+
+    if (data == "Job") {
+      setJobModal(true);
+    }
+    if (data == "Event") {
+      setEventModal(true)
+
+    }
+
+  }
 
 
 
@@ -209,15 +216,15 @@ if (data=="Event"){
               <JobModal
                 isOpen={jobModal}
                 onClose={() => setJobModal(false)} // Close modal when it is closed
-                // className='fixed top-4 right-4'
+              // className='fixed top-4 right-4'
               />
             )}
             {
-              activeTab ==='Event' &&eventModal &&(
+              activeTab === 'Event' && eventModal && (
                 <EventModal
-                isOpen={eventModal}
-                updatedEventprops={currentEvent}
-                onClose={ ()=>setEventModal(false)}
+                  isOpen={eventModal}
+                  onClose={() => setEventModal(false)}
+                  setEvents={setEvents}
                 // onSubmit={handleEventSubmit}
                 />
               )
@@ -230,23 +237,27 @@ if (data=="Event"){
         <div className="bg-white rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-medium">{activeTab === 'Job' ? 'Candidate List' : 'Event List'}</h2>
-            <div className="flex gap-4">
-              <select
-                className="px-4 py-2 bg-gray-100 rounded-md"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="newest">Sort by</option>
-                <option value="oldest">Oldest</option>
-                <option value="name">Name</option>
-              </select>
-              <button className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2">
-                Filter
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {activeTab === 'Job' && (
+              <div className="flex gap-4">
+                <select
+                  className="px-4 py-2 bg-gray-100 rounded-md"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="newest">Sort by</option>
+                  <option value="Ascending" onClick={() => setSortOrder('asc')}>Ascending</option>
+                  <option value="Descending" onClick={() => setSortOrder('desc')}>Descending</option>
+                </select>
+                <button className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2">
+                  Filter
+                  {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </button>
-            </div>
+                </svg> */}
+                  <SlidersHorizontal />
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Dynamic Table */}
@@ -277,10 +288,10 @@ if (data=="Event"){
                 </tr>
               </thead>
               <tbody>
-                {activeTab === 'Job'
+                {activeTab === 'Job' 
                   ? Candidates.map((candidate, index) => (
                     <tr key={candidate.id} className="hover:bg-gray-50 border-b border-gray-200">
-                      <td className="px-4 py-3">{candidate.id}</td>
+                      <td className="px-4 py-3">{candidate.uuid}</td>
                       <td className="px-4 py-3">{candidate.name}</td>
                       <td className="px-4 py-3">{candidate.email}</td>
                       <td className="px-4 py-3">{candidate.applyingDesignation}</td>
@@ -288,15 +299,15 @@ if (data=="Event"){
                       <td className="px-4 py-3">{candidate.currentsalary}</td>
                       <td className="px-4 py-3">{candidate.expectedsalary}</td>
                       <td className="px-4 py-3">
-                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer'>
-                        View Resume
+                        <a href={candidate.resume} target='_blank' rel='noopener noreferrer' className='text-green-700'>
+                          View Resume
                         </a>
                       </td>
                     </tr>
                   ))
                   : Events.map((event, index) => (
                     <tr key={event.id} className="hover:bg-gray-50 border-b border-gray-200">
-                      <td className="px-4 py-3">{event._id}</td>
+                      <td className="px-4 py-3">{event.uuid}</td>
                       <td className="px-4 py-3">{event.link}</td>
                       <td className="px-4 py-3">{event.date}</td>
                       <td className="px-4 py-3">

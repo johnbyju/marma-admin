@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 const API = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL
 });
+
 
 
 
@@ -19,10 +21,14 @@ export const resetPassword = (data) => API.post('/resetPassword', data);
 // export const fetchEvents = () => API.get('/events');
 // export const deleteEvent = (eventId) => API.delete(`/events/${eventId}`);
 export const deleteEvent = async (eventId) => {
+    
     const token = localStorage.getItem("token");
+    let navigate = useNavigate();
     if (!token) {
         console.error("No token found in localStorage");
+        navigate("/")
         throw new Error("Unauthorized: No token provided");
+      
     }
 
     console.log("Event ID to delete:", eventId); // Debugging eventId
@@ -53,7 +59,8 @@ export const fetchCandidates = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
-        throw new Error("Unauthorized: No token provided");
+        throw new Error("Login failed kindly login");
+        Navigate
     }
 
     try {
@@ -133,7 +140,7 @@ export const PostEventApi = async (data) => {
                 Authorization: `Bearer ${token}`, 
             },
         });     
-         return response.data.events
+         return response
     }
     catch(err){
         console.log(err)

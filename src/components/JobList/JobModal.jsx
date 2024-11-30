@@ -7,9 +7,9 @@ function JobModal({ isOpen, onClose, children,}) {
 
   const [formdata, setFormData] = useState({
     jobTitle: '',
-    jobCategory: '',
     jobType: '',
     jobDescription: '',
+    jobCategory:''
   })
   
   const handleInputChange = (e) => {
@@ -55,7 +55,7 @@ function JobModal({ isOpen, onClose, children,}) {
               />
             </div>
             <div>
-              <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="jobCategory" className="block text-sm font-medium text-gray-700">
                 Department
               </label>
               <select
@@ -66,12 +66,12 @@ function JobModal({ isOpen, onClose, children,}) {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 required
               >
-                <option value="">Select Department</option>
-                <option value="engineering">All</option>
-                <option value="design">Development</option>
-                <option value="marketing">Design</option>
+                <option value="">Select Department</option>     
+                <option value="design">Design</option>
+                <option value="marketing">IT</option>
                 <option value="sales">Marketing</option>
-                <option value="operations">Human Resourse</option>
+                <option value="human Resourse">HR</option>
+                <option value="accounts">Accountant</option>
               </select>
             </div>
             <div>

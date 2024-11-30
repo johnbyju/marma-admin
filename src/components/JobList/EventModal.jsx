@@ -1,84 +1,114 @@
-import axios from 'axios';
 import React, { useState } from 'react';
-import { PostEventApi, PostJobAPi, fetchEvents,} from '../../API/Api';
 import Swal from 'sweetalert2';
+import { PostEventApi, fetchEvents } from '../../API/Api';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
-function EventModal({ isOpen, onClose,setEvents}) {
+function EventModal({ isOpen, onClose, setEvents }) {
   if (!isOpen) return null;
 
-
-  const [formdata, setFormData] = useState({
-    link:""
-  })
+  const [formData, setFormData] = useState({
+    link: '',
+    date: dayjs(), // Initialize with current date
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleEventChange = async(e) => {
+  const handleDateChange = (newValue) => {
+    setFormData((prev) => ({ ...prev, date: newValue }));
+  };
+
+  const handleEventChange = async (e) => {
     e.preventDefault();
-  const response = await PostEventApi (formdata);
-  console.log(response,'whgewipefeo');
-  if(response.status === 200 || response.status === 201){
-    onClose()
-     Swal.fire({
-      title: 'Added Suceesfully..!',
-      text: 'The event has been Added successfully.',
-      icon: 'success',
-      confirmButtonText: 'OK',
-     })
-    const afterUpdatedEvent =await fetchEvents();
-    console.log(afterUpdatedEvent,'sefooefwoefdv');
-    setEvents(afterUpdatedEvent)
-  }
-    
-  }
+  
+    try {
+      const response = await PostEventApi({
+        link: formData.link,
+        eventDate: formData.date.format('YYYY-MM-DD'), // Change to the expected format
+      });
+  
+      if (response.status === 200 || response.status === 201) {
+        onClose();
+        Swal.fire({
+          title: 'Added Successfully!',
+          text: 'The event has been added successfully.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+  
+        const afterUpdatedEvent = await fetchEvents();
+        setEvents(afterUpdatedEvent);
+      }
+    } catch (error) {
+      console.error('Error while posting event:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to add the event. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
+  
+  
   return (
     <>
-      <div className="fixed top-4 right-4 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="fixed inset-0 flex items-start justify-end p-4 top-36">
         <div className="bg-white p-6 rounded-lg w-full max-w-md">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Add Job</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
+            <h2 className="text-xl font-bold">Add Event</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               ✕
             </button>
           </div>
           <form onSubmit={handleEventChange} className="space-y-4">
-            
-            
-           
+            <div>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Event Date"
+                  value={formData.date}
+                  onChange={handleDateChange}
+                  format="DD/MM/YYYY" // Display format
+                  renderInput={(params) => (
+                    <input
+                      {...params.inputProps}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black p-2"
+                      placeholder="DD/MM/YYYY"
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </div>
+
             <div>
               <label htmlFor="link" className="block text-sm font-medium text-gray-700">
-                
+                Event Link
               </label>
-              <textarea
+              <input
+                type="text"
                 id="link"
                 name="link"
-                value={formdata.link}
+                value={formData.link}
                 onChange={handleInputChange}
-                placeholder="Paste Event Link Here"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                rows="4"
+                placeholder="Enter Event Link Here"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-black focus:border-black"
                 required
-              ></textarea>
+              />
             </div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
+
+            <button type="submit" className="w-full px-4 py-2 bg-black text-white rounded">
               Post
             </button>
           </form>
         </div>
       </div>
     </>
-  )
-
- 
+  );
 }
 
 export default EventModal;

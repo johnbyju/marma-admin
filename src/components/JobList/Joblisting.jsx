@@ -5,12 +5,13 @@ import { deleteEvent, fetchCandidates, fetchEvents } from '../../API/Api';
 import Swal from 'sweetalert2';
 import JobModal from './JobModal';
 import EventModal from './EventModal';
+import { SortingCandidate } from '../../API/Api';
 
 
 
 export default function Dashboard() {
   console.log("check the function");
-  const [sortBy, setSortBy] = useState('newest');
+  const [filter, setFilter] = useState('all');
   const [Candidates, setCandidates] = useState([])
   const [Events, setEvents] = useState([])
   const [activeTab, setActiveTab] = useState('Job');
@@ -18,7 +19,8 @@ export default function Dashboard() {
   const [jobModal, setJobModal] = useState(false)
   const [eventModal, setEventModal] = useState(false)
   const [sortOrder, setSortOrder] = useState('asc');
-  const [loading, setloading] = useState(false)
+  const [filterToggle, setFilterToggle] = useState(false)
+
 
 
 
@@ -29,11 +31,12 @@ export default function Dashboard() {
   useEffect(() => {
 
     const fetchData = async () => {
-      setLoading(true);
+
       try {
         if (activeTab === 'Job') {
-          const response = await fetchCandidates();
+          const response = await fetchCandidates(sortOrder);
           setCandidates(response.data);
+          console.log(response.data);
         }
         if (activeTab === 'Event') {
           const response = await fetchEvents();
@@ -49,45 +52,68 @@ export default function Dashboard() {
           showConfirmButton: false,
           timer: 1500
         });
-      }
-      finally{
-        setLoading(false);
-      }
+      };
     }
     fetchData();
   }, [activeTab])
 
 
 
+  const filterDropDown = () => {
+    setFilterToggle(!filterToggle)
+  }
+
+  const [sortBy, setSortBy] = useState('default');
+
+  const handleShortChange = async (order) => {
+    setSortBy(order);  // Update the state to reflect the selected option
+    const validOrder = order === "newest" ? "desc" : order;
+
+    const response = await SortingCandidate(validOrder);
+    setCandidates(response.data)
+    console.log(response, 'Selecting by the values');
+  }
 
 
   // Your handleDelete function
   const handleDelete = async (id) => {
     try {
-      // Call the delete API
-      const response = await deleteEvent(id);
-      console.log(response, 'response');
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this event!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+      });
 
-      if (response.status == 200) {
-        // Show success alert
-        await Swal.fire({
-          title: 'Deleted!',
-          text: 'The event has been deleted successfully.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-        })
+      // If the user confirms, proceed with deletion
+      if (result.isConfirmed) {
+        const response = await deleteEvent(id);
+        console.log(response, 'response');
 
-        const updatedEvents = await fetchEvents();
-        setEvents(updatedEvents)
-        console.log(updatedEvents, 'updated events');
-      } else {
-        // Handle API error
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to delete the event.',
-          icon: 'error',
-          confirmButtonText: 'OK',
-        });
+
+        if (response.status == 200) {
+          // Show success alert
+          await Swal.fire({
+            title: 'Deleted!',
+            text: 'The event has been deleted successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+          })
+
+          const updatedEvents = await fetchEvents();
+          setEvents(updatedEvents)
+          console.log(updatedEvents, 'updated events');
+        } else {
+          // Handle API error
+          Swal.fire({
+            title: 'Error!',
+            text: 'Failed to delete the event.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        }
       }
     } catch (error) {
       // // Handle exceptions
@@ -123,28 +149,32 @@ export default function Dashboard() {
       if (result.isConfirmed) {
         localStorage.removeItem('token');
         navigate("/", { replace: true });
-        preventBackNavigation();
+
         Swal.fire('Logged Out', 'You have been logged out successfully.', 'success');
       }
     });
   };
 
-  const blockBackNavigation = () => {
-    window.history.pushState(null, "", window.location.href); // Push the current URL to the history
+  const handleFilterCategory =()=>{
 
-    // Add a listener to prevent back navigation
-    window.addEventListener("popstate", function () {
-      window.history.pushState(null, "", window.location.href); // Continuously push the same state
-    });
-  };
+  }
 
-  useEffect(() => {
-    blockBackNavigation();
+  // const blockBackNavigation = () => {
+  //   window.history.pushState(null, "", window.location.href); 
 
-    return () => {
-      window.removeEventListener("popstate", blockBackNavigation);
-    };
-  }, []);
+
+  //   window.addEventListener("popstate", function () {
+  //     window.history.pushState(null, "", window.location.href);
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   blockBackNavigation();
+
+  //   return () => {
+  //     window.removeEventListener("popstate", blockBackNavigation);
+  //   };
+  // }, []);
 
 
   const OpenModal = (data) => {
@@ -179,7 +209,7 @@ export default function Dashboard() {
 
           {/* Modal below the profile div */}
           {isTabOpen && (
-            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 " onClick={handleDelete}>
+            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 " >
               <div className="flex justify-center items-center flex-col">
                 <button className=" text-black flex rounded-md" onClick={handleLogout}>
                   <LogOut className='text-black h-5 ' /> Logout
@@ -242,19 +272,29 @@ export default function Dashboard() {
                 <select
                   className="px-4 py-2 bg-gray-100 rounded-md"
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => handleShortChange(e.target.value)}
                 >
-                  <option value="newest">Sort by</option>
-                  <option value="Ascending" onClick={() => setSortOrder('asc')}>Ascending</option>
-                  <option value="Descending" onClick={() => setSortOrder('desc')}>Descending</option>
+                  <option value="default" disabled>Sort by</option>  {/* Keeps 'Sort by' as a placeholder */}
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
                 </select>
-                <button className="px-4 py-2 bg-gray-100 rounded-md flex items-center gap-2">
+                <button
+                  onClick={filterDropDown}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
                   Filter
-                  {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg> */}
                   <SlidersHorizontal />
                 </button>
+                {filterToggle && (
+                  <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <ul className="py-2">
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleFilterCategory}>Option 1</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 2</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 3</li>
+                    </ul>
+                  </div>             
+                )}
+
               </div>
             )}
 
@@ -269,9 +309,9 @@ export default function Dashboard() {
                     <>
                       <th className="px-4 py-3 text-left">Candidate ID</th>
                       <th className="px-4 py-3 text-left">Name</th>
-                      <th className="px-4 py-3 text-left">Email</th>
                       <th className="px-4 py-3 text-left">applyingDesignation</th>
-                      <th className="px-4 py-3 text-left">experience</th>
+                      <th className="px-4 py-3 text-left">Apply Date</th>
+                      <th className="px-4 py-3 text-left">Department</th>
                       <th className="px-4 py-3 text-left">Current Salary</th>
                       <th className="px-4 py-3 text-left">Expected Salary</th>
                       <th className="px-4 py-3 text-left">Resume</th>
@@ -288,14 +328,20 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {activeTab === 'Job' 
+                {activeTab === 'Job'
                   ? Candidates.map((candidate, index) => (
                     <tr key={candidate.id} className="hover:bg-gray-50 border-b border-gray-200">
                       <td className="px-4 py-3">{candidate.uuid}</td>
                       <td className="px-4 py-3">{candidate.name}</td>
-                      <td className="px-4 py-3">{candidate.email}</td>
                       <td className="px-4 py-3">{candidate.applyingDesignation}</td>
-                      <td className="px-4 py-3">{candidate.experience}</td>
+                      <td className="px-4 py-3">
+                        {new Date(candidate.createdAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                        })}
+                      </td>
+                      <td className="px-4 py-3">{candidate.department}</td>
                       <td className="px-4 py-3">{candidate.currentsalary}</td>
                       <td className="px-4 py-3">{candidate.expectedsalary}</td>
                       <td className="px-4 py-3">
@@ -309,7 +355,16 @@ export default function Dashboard() {
                     <tr key={event.id} className="hover:bg-gray-50 border-b border-gray-200">
                       <td className="px-4 py-3">{event.uuid}</td>
                       <td className="px-4 py-3">{event.link}</td>
-                      <td className="px-4 py-3">{event.date}</td>
+                      <td
+                        className="inline-block mt-4 flex-row eventdate"
+                        style={{ display: 'list-item', marginLeft: '15px' }}
+                      >
+                        {new Date(event.eventDate).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: '2-digit',
+                          year: 'numeric',
+                        })}
+                      </td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleViewEvent(event.link)}

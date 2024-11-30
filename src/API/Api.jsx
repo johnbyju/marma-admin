@@ -16,6 +16,75 @@ export const forgotPassword = (data) => API.post('/forgotPassword', data);
 export const verifyOTP = (data) => API.post('/verifyOTP', data);
 export const resetPassword = (data) => API.post('/resetPassword', data);
 
+
+// Sorted Ascending Descending 
+// export const SortCandidate = (sortOrder = 'asc') => { API.get(`/applications?sort=${sortOrder}`,{
+
+//     const token = localStorage.getItem("token");
+//     if (!token) {
+//         console.error("No token found in localStorage");
+//         throw new Error("Unauthorized: No token provided");
+      
+//     }
+//         try{
+
+//         }
+
+
+//         headers: {
+//             Authorization: `Bearer ${token}`, 
+//         },
+        
+//     });
+//   };
+
+export const SortingCandidate = async (sortOrder = 'asc') => {
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      console.error("No token found in localStorage");
+      throw new Error("Unauthorized: No token provided");
+    }
+  
+    try {
+      // Make the GET request with Authorization header and sort query parameter
+      const response = await API.get(`/applications?sort=${sortOrder}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // Log the response data to the console for debugging
+      console.log(response.data, 'Sorted Candidates');
+      return response.data; // Ensure the response is returned if you want to use it elsewhere
+    } catch (err) {
+      // Handle the error and log the response error if available
+      if (err.response) {
+        console.error(err.response);
+      } else {
+        console.error('An error occurred', err.message);
+      }
+    }
+  };
+
+  
+   
+  
+
+
+  
+
+
+  
+
+  
+
+
+
+
+
+
+
 // dashboard data api
 // export const fetchCandidates = () => API.get('/applications');
 // export const fetchEvents = () => API.get('/events');
@@ -23,10 +92,8 @@ export const resetPassword = (data) => API.post('/resetPassword', data);
 export const deleteEvent = async (eventId) => {
     
     const token = localStorage.getItem("token");
-    let navigate = useNavigate();
     if (!token) {
         console.error("No token found in localStorage");
-        navigate("/")
         throw new Error("Unauthorized: No token provided");
       
     }
@@ -59,8 +126,7 @@ export const fetchCandidates = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
-        throw new Error("Login failed kindly login");
-        Navigate
+        return <Navigate to="/" replace />;
     }
 
     try {

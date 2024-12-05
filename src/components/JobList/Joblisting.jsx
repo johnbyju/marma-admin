@@ -155,9 +155,52 @@ export default function Dashboard() {
     });
   };
 
-  const handleFilterCategory =()=>{
+  const handleFilterCategory = async (department) => {
+    setLoading(true); // Start loading while fetching data
 
-  }
+    const token = localStorage.getItem('token'); // Get token from localStorage
+    if (!token) {
+      console.error("No token found in localStorage");
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: 'Unauthorized: No token provided',
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Build the URL for the API call with the selected department
+      const url = `http://localhost:7001/applications?sort=asc&department=${department}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Add token in the Authorization header
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCandidates(data); // Set data into state
+      } else {
+        throw new Error(data.message || 'Failed to fetch data');
+      }
+    } catch (err) {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: err.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    } finally {
+      setLoading(false); // Stop loading after data is fetched
+    }
+  };
 
   // const blockBackNavigation = () => {
   //   window.history.pushState(null, "", window.location.href); 
@@ -288,9 +331,9 @@ export default function Dashboard() {
                 {filterToggle && (
                   <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                     <ul className="py-2">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleFilterCategory}>Option 1</li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 2</li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 3</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"  onClick={() => handleFilterCategory('des')}>Design</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"  onClick={() => handleFilterCategory('it')}>It</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"  onClick={() => handleFilterCategory('marketing')}>marketing</li>
                     </ul>
                   </div>             
                 )}

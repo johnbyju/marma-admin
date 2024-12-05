@@ -200,7 +200,8 @@ export default function Dashboard() {
         </div>
         <div className="relative flex items-center" onClick={() => setIsTabOpen((prev) => !prev)}>
           <div className="flex flex-col items-center gap-2 text-sm">
-           
+            <span></span>
+            <span className="text-gray-500">OPTIONS</span>
           </div>
           <div className="ml-2">
             {isTabOpen ? <ChevronUp /> : <ChevronDown />}
@@ -277,7 +278,7 @@ export default function Dashboard() {
                   <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>
                 </select>
-                {/* <button
+                <button
                   onClick={filterDropDown}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                 >
@@ -287,12 +288,12 @@ export default function Dashboard() {
                 {filterToggle && (
                   <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                     <ul className="py-2">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleFilterCategory}></li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={handleFilterCategory}>Option 1</li>
                       <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 2</li>
                       <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Option 3</li>
                     </ul>
                   </div>             
-                )} */}
+                )}
 
               </div>
             )}

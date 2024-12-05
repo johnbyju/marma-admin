@@ -200,8 +200,7 @@ export default function Dashboard() {
         </div>
         <div className="relative flex items-center" onClick={() => setIsTabOpen((prev) => !prev)}>
           <div className="flex flex-col items-center gap-2 text-sm">
-            <span>Mathankumar</span>
-            <span className="text-gray-500">HR Manager</span>
+           
           </div>
           <div className="ml-2">
             {isTabOpen ? <ChevronUp /> : <ChevronDown />}

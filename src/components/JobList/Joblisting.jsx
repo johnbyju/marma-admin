@@ -156,36 +156,23 @@ export default function Dashboard() {
   };
 
   const handleFilterCategory = async (department) => {
-    setLoading(true); // Start loading while fetching data
-
     const token = localStorage.getItem('token'); // Get token from localStorage
-    if (!token) {
-      console.error("No token found in localStorage");
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Unauthorized: No token provided',
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      setLoading(false);
-      return;
-    }
-
+  
     try {
       // Build the URL for the API call with the selected department
-      const url = `http://localhost:7001/applications?sort=asc&department=${department}`;
+      const url = `http://ec2-18-214-60-96.compute-1.amazonaws.com:7001/applications?sort=asc&department=${department}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`, // Add token in the Authorization header
         },
       });
+      console.log(response);
 
       const data = await response.json();
 
       if (response.ok) {
-        setCandidates(data); // Set data into state
+        setCandidates(data.data); 
       } else {
         throw new Error(data.message || 'Failed to fetch data');
       }
@@ -197,8 +184,6 @@ export default function Dashboard() {
         showConfirmButton: false,
         timer: 1500,
       });
-    } finally {
-      setLoading(false); // Stop loading after data is fetched
     }
   };
 

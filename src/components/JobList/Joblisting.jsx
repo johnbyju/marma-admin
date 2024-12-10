@@ -19,7 +19,8 @@ export default function Dashboard() {
   const [jobModal, setJobModal] = useState(false)
   const [eventModal, setEventModal] = useState(false)
   const [sortOrder, setSortOrder] = useState('asc');
-  const [filterToggle, setFilterToggle] = useState(false)
+  const [filterToggle, setFilterToggle] = useState(false);
+  const [selectedEventTime, setSelectedEventTime] = useState('');
 
 
 
@@ -187,6 +188,37 @@ export default function Dashboard() {
     }
   };
 
+
+  const handleFilterEvent = async (time) => {
+    try {
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      const url = `http://ec2-18-214-60-96.compute-1.amazonaws.com:7001/event/getallevent?timeFrame=${time}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Add token in the Authorization header
+        },
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setEvents(data.events); // Update the events list
+        setSelectedEventTime(time); // Update selected category
+      } else {
+        throw new Error(data.message || 'Failed to fetch filtered events');
+      }
+    } catch (err) {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: err.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+
   // const blockBackNavigation = () => {
   //   window.history.pushState(null, "", window.location.href); 
 
@@ -293,8 +325,8 @@ export default function Dashboard() {
 
         {/* Table Section */}
         <div className="bg-white rounded-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-medium">{activeTab === 'Job' ? 'Candidate List' : 'Event List'}</h2>
+          <div className="flex space-x-4 mb-6">
+            <h2 className="text-lg text-center align-middle font-medium">{activeTab === 'Job' ? 'Candidate List' : 'Event List'}</h2>
             {activeTab === 'Job' && (
               <div className="flex gap-4">
                 <select
@@ -325,6 +357,27 @@ export default function Dashboard() {
 
               </div>
             )}
+            {activeTab === 'Event' &&(
+              <div className="flex gap-4">
+
+<button
+                  onClick={filterDropDown}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
+                  Filter
+                  <SlidersHorizontal />
+                </button>
+                {filterToggle && (
+                  <div className="absolute mt-14 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <ul className="py-2">
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"  onClick={() => handleFilterEvent('One month')}>One month</li>
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"  onClick={() => handleFilterEvent('Last week')}>last week</li>
+                    </ul>
+                  </div>             
+                )}
+              </div>
+            )}
+            
 
           </div>
 

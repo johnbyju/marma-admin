@@ -388,22 +388,22 @@ export default function Dashboard() {
                 <tr>
                   {activeTab === 'Job' ? (
                     <>
-                      <th className="px-4 py-3 text-left">Candidate ID</th>
-                      <th className="px-4 py-3 text-left">Name</th>
-                      <th className="px-4 py-3 text-left">applyingDesignation</th>
-                      <th className="px-4 py-3 text-left">Apply Date</th>
-                      <th className="px-4 py-3 text-left">Department</th>
-                      <th className="px-4 py-3 text-left">Current Salary</th>
-                      <th className="px-4 py-3 text-left">Expected Salary</th>
-                      <th className="px-4 py-3 text-left">Resume</th>
+                      <th className="px-4 py-6 text-left">Candidate ID</th>
+                      <th className="px-4 py-6 text-left">Name</th>
+                      <th className="px-4 py-6 text-left">applyingDesignation</th>
+                      <th className="px-4 py-6 text-left">Apply Date</th>
+                      <th className="px-4 py-6 text-left">Department</th>
+                      <th className="px-4 py-6 text-left">Current Salary</th>
+                      <th className="px-4 py-6 text-left">Expected Salary</th>
+                      <th className="px-4 py-6 text-left">Resume</th>
                     </>
                   ) : (
                     <>
-                      <th className="px-4 py-3 text-left">Event ID</th>
-                      <th className="px-4 py-3 text-left">Event Link</th>
-                      <th className="px-4 py-3 text-left">Date</th>
-                      <th className="px-4 py-3 text-left">View</th>
-                      <th className="px-4 py-3 text-left">Delete</th>
+                      <th className="px-4 py-6 text-start">Event ID</th>
+                      <th className="px-4 py-6 text-center">Event Link</th>
+                      <th className="px-4 py-6 text-center">Date</th>
+                      <th className="px-4 py-6 text-center">View</th>
+                      <th className="px-4 py-6 text-center">Delete</th>
                     </>
                   )}
                 </tr>
@@ -412,20 +412,20 @@ export default function Dashboard() {
                 {activeTab === 'Job'
                   ? Candidates.map((candidate, index) => (
                     <tr key={candidate.id} className="hover:bg-gray-50 border-b border-gray-200">
-                      <td className="px-4 py-3">{candidate.uuid}</td>
-                      <td className="px-4 py-3">{candidate.name}</td>
-                      <td className="px-4 py-3">{candidate.applyingDesignation}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-6">{candidate.uuid}</td>
+                      <td className="px-4 py-6">{candidate.name}</td>
+                      <td className="px-5 py-6">{candidate.applyingDesignation}</td>
+                      <td className="px-5 py-6">
                         {new Date(candidate.createdAt).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: '2-digit',
                           year: 'numeric',
                         })}
                       </td>
-                      <td className="px-4 py-3">{candidate.department}</td>
-                      <td className="px-4 py-3">{candidate.currentsalary}</td>
-                      <td className="px-4 py-3">{candidate.expectedsalary}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-6">{candidate.department}</td>
+                      <td className="px-5 py-6">{candidate.currentsalary}</td>
+                      <td className="px-5 py-6">{candidate.expectedsalary}</td>
+                      <td className="px-5 py-6">
                         <a href={candidate.resume} target='_blank' rel='noopener noreferrer' className='text-green-700'>
                           View Resume
                         </a>
@@ -434,8 +434,8 @@ export default function Dashboard() {
                   ))
                   : Events.map((event, index) => (
                     <tr key={event.id} className="hover:bg-gray-50 border-b border-gray-200">
-                      <td className="px-4 py-3">{event.uuid}</td>
-                      <td className="px-4 py-3">{event.link}</td>
+                      <td className="px-5 py-6">{event.uuid}</td>
+                      <td className="px-5 py-6 text-start">{event.link}</td>
                       <td
                         className="inline-block mt-4 flex-row eventdate"
                         style={{ display: 'list-item', marginLeft: '15px' }}
@@ -446,7 +446,7 @@ export default function Dashboard() {
                           year: 'numeric',
                         })}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-6">
                         <button
                           onClick={() => handleViewEvent(event.link)}
                           className="text-blue-600 hover:text-blue-800"
@@ -454,7 +454,7 @@ export default function Dashboard() {
                           View Event
                         </button>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-6">
                         <button
                           onClick={() => handleDelete(event._id)}
                           className="text-gray-600 hover:text-red-600"

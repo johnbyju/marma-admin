@@ -1,32 +1,58 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { PostJobAPi } from '../../API/Api';
 
-function JobModal({ isOpen, onClose, children,}) {
+function JobModal({ isOpen, onClose }) {
   if (!isOpen) return null;
-
 
   const [formdata, setFormData] = useState({
     jobTitle: '',
     jobType: '',
     jobDescription: '',
-    jobCategory:''
-  })
-  
+    jobCategory: '',
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleJobSubmit = (e) => {
+  const handleJobSubmit = async (e) => {
     e.preventDefault();
-    // onSubmit(formdata)
-    PostJobAPi(formdata)
-    onClose()
-  }
-  if (!isOpen) return null
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to post this job?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, post it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Proceed with API call if confirmed
+        PostJobAPi(formdata)
+          .then(() => {
+            Swal.fire('Posted!', 'The job has been posted successfully.', 'success');
+            onClose(); // Close the modal
+            setFormData({
+              jobTitle: '',
+              jobType: '',
+              jobDescription: '',
+              jobCategory: '',
+            }); // Reset the form
+          })
+          .catch((error) => {
+            Swal.fire('Error!', 'There was a problem posting the job.', 'error');
+            console.error('Error posting job:', error);
+          });
+      }
+    });
+  };
+
   return (
     <>
-
       <div className="fixed inset-0 flex items-start justify-end p-4 top-36">
         <div className="bg-white p-6 rounded-lg w-full max-w-md">
           <div className="flex justify-between items-center mb-4">
@@ -66,10 +92,10 @@ function JobModal({ isOpen, onClose, children,}) {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 required
               >
-                <option value="">Select Department</option>     
+                <option value="">Select Department</option>
                 <option value="design">Design</option>
-                <option value="marketing">IT</option>
-                <option value="sales">Marketing</option>
+                <option value="development">Development</option>
+                <option value="marketing">Marketing</option>
                 <option value="human Resourse">HR</option>
                 <option value="accounts">Accountant</option>
               </select>
@@ -111,16 +137,12 @@ function JobModal({ isOpen, onClose, children,}) {
             <button
               type="submit"
               className="w-full px-4 py-2 bg-black text-white rounded hover:bg-blue-600"
-            >
-              Submit
-            </button>
+            >Submit</button>
           </form>
         </div>
       </div>
     </>
-  )
-
- 
+  );
 }
 
 export default JobModal;

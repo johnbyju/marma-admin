@@ -326,7 +326,7 @@ export default function Dashboard() {
         {/* Table Section */}
         <div className="bg-white rounded-lg p-6">
           <div className="flex space-x-4 mb-6">
-            <h2 className="text-lg text-center align-middle font-medium">{activeTab === 'Job' ? 'Candidate List' : 'Event List'}</h2>
+            <h2 className="text-lg text-center mt-1 align-middle font-medium">{activeTab === 'Job' ? 'Candidate List' : 'Event List'}</h2>
             {activeTab === 'Job' && (
               <div className="flex gap-4">
                 <select

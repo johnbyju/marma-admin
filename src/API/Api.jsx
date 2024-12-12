@@ -236,5 +236,37 @@ export const GetAllPostedJobs = async(data)=>{
 }
 
 
+export const deleteJobPost = async (jobId) => {
+    
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found in localStorage");
+        throw new Error("Unauthorized: No token provided");
+      
+    }
+
+    console.log("Event ID to delete:", jobId); // Debugging eventId
+    console.log("Token:", token); // Debugging token
+
+    try {
+        const response = await API.delete(`/jobs/${jobId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Ensure proper format
+            },
+        });
+        console.log("Delete Response:", response.data); // Debugging success response
+        return response;
+    } catch (err) {
+        if (err.response) {
+            // Log detailed error response
+            console.error("Error Response:", err.response.data);
+            throw new Error(err.response.data.message || "Delete request failed");
+        } else {
+            console.error("Error:", err.message);
+            throw new Error("An unknown error occurred");
+        }
+    }
+};
+
 
 export default API;

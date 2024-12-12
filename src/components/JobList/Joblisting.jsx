@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, LogOut, PlusSquare, SlidersHorizontal, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { GetAllPostedJobs, deleteEvent, fetchCandidates, fetchEvents } from '../../API/Api';
+import { GetAllPostedJobs, deleteEvent, deleteJobPost, fetchCandidates, fetchEvents } from '../../API/Api';
 import Swal from 'sweetalert2';
 import JobModal from './JobModal';
 import EventModal from './EventModal';
@@ -21,7 +21,7 @@ export default function Dashboard() {
   const [eventModal, setEventModal] = useState(false)
   const [sortOrder, setSortOrder] = useState('asc');
   const [filterToggle, setFilterToggle] = useState(false);
-  
+
 
 
   const navigate = useNavigate()
@@ -133,8 +133,54 @@ export default function Dashboard() {
   };
 
   // MyJobDelete function
-  const handleDeleteJob = async () => {
+  const handleDeleteJob = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this job post!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+      });
 
+      // If the user confirms, proceed with deletion
+      if (result.isConfirmed) {
+        const response = await deleteJobPost(id);
+        console.log(response, 'response');
+
+
+        if (response.status == 200) {
+          // Show success alert
+          await Swal.fire({
+            title: 'Deleted!',
+            text: 'The Job has been deleted successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+          })
+
+          const updatedPostedEvent = await GetAllPostedJobs();
+          setpostedJobs(updatedPostedEvent.data)
+        } else {
+          // Handle API error
+          Swal.fire({
+            title: 'Error!',
+            text: 'Failed to delete the event.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        }
+      }
+    } catch (error) {
+      // // Handle exceptions
+      // Swal.fire({
+      //   title: 'Error!',
+      //   text: 'An error occurred while deleting the event.',
+      //   icon: 'error',
+      //   confirmButtonText: 'OK',
+      // });
+      // console.error(error);
+    }
   }
 
 
@@ -298,26 +344,27 @@ export default function Dashboard() {
 
           </div>
           <div>
-            <button className='flex border rounded-md border-black p-2' onClick={() => OpenModal(activeTab)}>
-              <p className='flex gap-2'>{activeTab === 'Job' ? 'Post Job' : 'Add Event'}<PlusSquare /></p>
-            </button>
-            {activeTab === 'Job' && jobModal && (
+            {activeTab !== 'PostedJob' && (
+              <button className='flex border rounded-md border-black p-2' onClick={() => OpenModal(activeTab)}>
+                <p className='flex gap-2'>{activeTab === 'Job' ? 'Post Job' : 'Add Event'}<PlusSquare /></p>
+              </button>
+            )}
+            {activeTab === 'Job' && (
               <JobModal
                 isOpen={jobModal}
                 onClose={() => setJobModal(false)} // Close modal when it is closed
-              // className='fixed top-4 right-4'
               />
             )}
-            {
-              activeTab === 'Event' && eventModal && (
-                <EventModal
-                  isOpen={eventModal}
-                  onClose={() => setEventModal(false)}
-                  setEvents={setEvents}
-                />
-              )
-            }
+
+            {activeTab === 'Event' && (
+              <EventModal
+                isOpen={eventModal}
+                onClose={() => setEventModal(false)}
+                setEvents={setEvents}
+              />
+            )}
           </div>
+
         </div>
 
 
@@ -411,8 +458,7 @@ export default function Dashboard() {
                       <th className="px-4 py-6 text-left">Department</th>
                       <th className="px-4 py-6 text-left">Posted Date</th>
                       <th className="px-4 py-6 text-left">Jobtype</th>
-                      <th className="px-4 py-6 text-left">View Details</th>
-                      <th className="px-4 py-6 text-left">Delete</th>
+                      <th className="pl-3 py-6 text-left">Delete the job</th>
                     </>
                   ) : null}
                 </tr>
@@ -453,41 +499,41 @@ export default function Dashboard() {
                             year: 'numeric',
                           })}
                         </td>
-                        <td className="px-5 py-6">
+                        <td className="px-5 py-6 text-center">
                           <button onClick={() => handleViewEvent(event.link)} className="text-blue-600 hover:text-blue-800">
                             View Event
                           </button>
                         </td>
-                        <td className="px-5 py-6">
-                          <button onClick={() => handleDelete(event._id)} className="text-gray-600 hover:text-red-600">
-                            <Trash2 className="w-4 h-4" />
+                        <td className="px-5 py-6 text-center">
+                          <button onClick={() => handleDelete(event._id)} className="text-gray-600 hover:text-red-600 ">
+                            <Trash2 className="w-4 h-4 " />
                           </button>
                         </td>
                       </tr>
                     ))
-                      : activeTab === 'PostedJob'
-                        ? PostedJobs.map((job, index) => (
-                          <tr key={job.id} className="hover:bg-gray-50 border-b border-gray-200">
-                            <td className="px-5 py-6">{job._id.slice(-4)}</td>
-                            <td className="px-5 py-6">{job.jobTitle}</td>
-                            <td className="px-5 py-6">{job.jobCategory}</td>
-                            <td className="px-5 py-6">
-                              {new Date(job.createdAt).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              })}
-                            </td>
-                            <td className="px-5 py-6">{job.jobType}</td>
-                            
-                            <td className="px-5 py-6">
-                              <button onClick={() => handleDeleteJob(job.id)} className="text-gray-600 hover:text-red-600">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                        : null}
+                    : activeTab === 'PostedJob'
+                      ? PostedJobs.map((job, index) => (
+                        <tr key={job.id} className="hover:bg-gray-50 border-b border-gray-200">
+                          <td className="px-5 py-6">{job._id.slice(-4)}</td>
+                          <td className="px-5 py-6">{job.jobTitle}</td>
+                          <td className="px-5 py-6">{job.jobCategory}</td>
+                          <td className="px-5 py-6">
+                            {new Date(job.createdAt).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
+                          </td>
+                          <td className="px-5 py-6">{job.jobType}</td>
+
+                          <td className="px-5 py-6 ">
+                            <button onClick={() => handleDeleteJob(job._id)} className=" text-gray-600 hover:text-red-600">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                      : null}
               </tbody>
             </table>
           </div>

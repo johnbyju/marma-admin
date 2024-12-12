@@ -212,4 +212,29 @@ export const PostEventApi = async (data) => {
         console.log(err)
     }
 }
+ 
+export const GetAllPostedJobs = async(data)=>{
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No token found in localStorage");
+        throw new Error("Unauthorized: No token provided");
+    }
+
+    try {
+        const response = await API.get('/jobs/getalljobs',data, {
+            headers: {
+                Authorization: `Bearer ${token}`, 
+            },
+        });  
+        console.log(response.data,'admin dashoboard');   
+         return response
+         
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+
+
 export default API;

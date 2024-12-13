@@ -17,85 +17,46 @@ export const verifyOTP = (data) => API.post('/verifyOTP', data);
 export const resetPassword = (data) => API.post('/resetPassword', data);
 
 
-// Sorted Ascending Descending 
-// export const SortCandidate = (sortOrder = 'asc') => { API.get(`/applications?sort=${sortOrder}`,{
-
-//     const token = localStorage.getItem("token");
-//     if (!token) {
-//         console.error("No token found in localStorage");
-//         throw new Error("Unauthorized: No token provided");
-      
-//     }
-//         try{
-
-//         }
 
 
-//         headers: {
-//             Authorization: `Bearer ${token}`, 
-//         },
-        
-//     });
-//   };
 
 export const SortingCandidate = async (sortOrder = 'asc') => {
     const token = localStorage.getItem("token");
-  
+
     if (!token) {
-      console.error("No token found in localStorage");
-      throw new Error("Unauthorized: No token provided");
+        console.error("No token found in localStorage");
+        throw new Error("Unauthorized: No token provided");
     }
-  
+
     try {
-      // Make the GET request with Authorization header and sort query parameter
-      const response = await API.get(`/applications?sort=${sortOrder}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      // Log the response data to the console for debugging
-      console.log(response.data, 'Sorted Candidates');
-      return response.data; // Ensure the response is returned if you want to use it elsewhere
+        // Make the GET request with Authorization header and sort query parameter
+        const response = await API.get(`/applications?sort=${sortOrder}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        // Log the response data to the console for debugging
+        console.log(response.data, 'Sorted Candidates');
+        return response.data; // Ensure the response is returned if you want to use it elsewhere
     } catch (err) {
-      // Handle the error and log the response error if available
-      if (err.response) {
-        console.error(err.response);
-      } else {
-        console.error('An error occurred', err.message);
-      }
+        // Handle the error and log the response error if available
+        if (err.response) {
+            console.error(err.response);
+        } else {
+            console.error('An error occurred', err.message);
+        }
     }
-  };
-
-  
-   
-  
+};
 
 
-  
-
-
-  
-
-  
-
-
-
-
-
-
-
-// dashboard data api
-// export const fetchCandidates = () => API.get('/applications');
-// export const fetchEvents = () => API.get('/events');
-// export const deleteEvent = (eventId) => API.delete(`/events/${eventId}`);
 export const deleteEvent = async (eventId) => {
-    
+
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
         throw new Error("Unauthorized: No token provided");
-      
+
     }
 
     console.log("Event ID to delete:", eventId); // Debugging eventId
@@ -152,25 +113,18 @@ export const fetchEvents = async () => {
     try {
         const response = await API.get('/event/getallevent', {
             headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `Bearer ${token}`,
             },
-        });     
-         return response.data.events
+        });
+        return response.data.events
     }
-    catch(err){
+    catch (err) {
         console.log(err)
     }
 }
 
 
-// const getData = async () => {
-//     try {
-//         const candidates = await fetchCandidates();
-//         console.log("Data fetched successfully:", candidates);
-//     } catch (err) {
-//         console.error("Failed to fetch data:", err);
-//     }
-// };
+
 
 
 // getData();
@@ -182,14 +136,14 @@ export const PostJobAPi = async (data) => {
     }
 
     try {
-        const response = await API.post('/jobs',data, {
+        const response = await API.post('/jobs', data, {
             headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `Bearer ${token}`,
             },
-        });     
-         return response.data.events
+        });
+        return response.data.events
     }
-    catch(err){
+    catch (err) {
         console.log(err)
     }
 }
@@ -201,19 +155,19 @@ export const PostEventApi = async (data) => {
     }
 
     try {
-        const response = await API.post('/eventLink',data, {
+        const response = await API.post('/eventLink', data, {
             headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `Bearer ${token}`,
             },
-        });     
-         return response
+        });
+        return response
     }
-    catch(err){
+    catch (err) {
         console.log(err)
     }
 }
- 
-export const GetAllPostedJobs = async(data)=>{
+
+export const GetAllPostedJobs = async (data) => {
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
@@ -221,28 +175,28 @@ export const GetAllPostedJobs = async(data)=>{
     }
 
     try {
-        const response = await API.get('/jobs/getalljobs',data, {
+        const response = await API.get('/jobs/getalljobs', data, {
             headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `Bearer ${token}`,
             },
-        });  
-        console.log(response.data,'admin dashoboard');   
-         return response
-         
+        });
+        console.log(response.data, 'admin dashoboard');
+        return response
+
     }
-    catch(err){
+    catch (err) {
         console.log(err)
     }
 }
 
 
 export const deleteJobPost = async (jobId) => {
-    
+
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
         throw new Error("Unauthorized: No token provided");
-      
+
     }
 
     console.log("Event ID to delete:", jobId); // Debugging eventId

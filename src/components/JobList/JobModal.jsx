@@ -23,7 +23,7 @@ function JobModal({ isOpen, onClose }) {
   };
 
   const updateContent = (e) => {
-    let outerDivContent = e.target.outerHTML;
+    let outerDivContent = e.target.innerHTML;
     console.log(outerDivContent);
     let split1 = outerDivContent.indexOf('<termtext>');
     let split2 = outerDivContent.indexOf('</termtext>');

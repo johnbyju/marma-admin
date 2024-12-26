@@ -124,9 +124,6 @@ export const fetchEvents = async () => {
 }
 
 
-
-
-
 // getData();
 export const PostJobAPi = async (data) => {
     const token = localStorage.getItem("token");

@@ -5,38 +5,7 @@ export default function EventDashboard() {
   const [activeTab, setActiveTab] = useState('Event')
   const [sortBy, setSortBy] = useState('newest')
 
-  const events = [
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    },
-    {
-      id: '#1101',
-      link: 'https://marmafintech.vercel.app/',
-      date: '12-11-2024',
-    }
-  ]
+  
 
   const handleDelete = (id) => {
     console.log('Delete event:', id)

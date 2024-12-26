@@ -292,7 +292,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white px-6 py-4 flex justify-between items-center border-b">
+      <header className="bg-white px-6 py-4 flex justify-between items-center m-5 border-">
         <div>
           <img src="/logob.png" alt="Logo" style={{ width: '130px' }} />
         </div>
@@ -307,7 +307,7 @@ export default function Dashboard() {
 
           {/* Modal below the profile div */}
           {isTabOpen && (
-            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4 " >
+            <div className="absolute bg-white shadow-lg rounded-md w- mt-32 p-4" >
               <div className="flex justify-center items-center flex-col">
                 <button className=" text-black flex rounded-md" onClick={handleLogout}>
                   <LogOut className='text-black h-5 ' /> Logout
@@ -352,7 +352,7 @@ export default function Dashboard() {
             {activeTab === 'Job' && (
               <JobModal
                 isOpen={jobModal}
-                onClose={() => setJobModal(false)} // Close modal when it is closed
+                onClose={() => setJobModal(false)} 
               />
             )}
 
@@ -375,18 +375,26 @@ export default function Dashboard() {
             </p>
             {activeTab === 'Job' && (
               <div className="flex gap-4">
-                <select
-                  className="px-4 py-2 bg-gray-100 rounded-md"
-                  value={sortBy}
-                  onChange={(e) => handleShortChange(e.target.value)}
-                >
-                  <option value="default" disabled>Sort by</option>  {/* Keeps 'Sort by' as a placeholder */}
-                  <option value="asc">Ascending</option>
-                  <option value="desc">Descending</option>
-                </select>
+                <div className="relative inline-block">
+                  <select
+                    className="px-5 py-3 bg-gray-100 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={sortBy}
+                    onChange={(e) => handleShortChange(e.target.value)}
+                  >
+                    <option value="default" disabled>
+                      Sort by
+                    </option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                  </select>
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <ChevronDown className="w-4 h-4 text-black" />
+                  </span>
+                </div>
+
                 <button
                   onClick={filterDropDown}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-md flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  className="px-5 py-3 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-xl flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                 >
                   Filter
                   <SlidersHorizontal />
@@ -429,19 +437,19 @@ export default function Dashboard() {
 
           {/* Dynamic Table */}
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full rounded-xl">
               <thead className="bg-gray-900 text-white">
                 <tr>
                   {activeTab === 'Job' ? (
                     <>
-                      <th className="px-4 py-6 text-left">Candidate ID</th>
+                      <th className="px-4 py-6 text-left rounded-s-xl">Candidate ID</th>
                       <th className="px-4 py-6 text-left">Name</th>
                       <th className="px-4 py-6 text-left">applyingDesignation</th>
                       <th className="px-4 py-6 text-left">Apply Date</th>
                       <th className="px-4 py-6 text-left">Department</th>
                       <th className="px-4 py-6 text-left">Current Salary</th>
                       <th className="px-4 py-6 text-left">Expected Salary</th>
-                      <th className="px-4 py-6 text-left">Resume</th>
+                      <th className="px-4 py-6 text-left rounded-r-xl">Resume</th>
                     </>
                   ) : activeTab === 'Event' ? (
                     <>

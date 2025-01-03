@@ -212,21 +212,18 @@ export default function Dashboard() {
   };
 
   const handleFilterCategory = async (department) => {
-    const token = localStorage.getItem('token'); // Get token from localStorage
+    const token = localStorage.getItem('token'); 
 
     try {
-      // Build the URL for the API call with the selected department
       const url = `http://ec2-18-214-60-96.compute-1.amazonaws.com:7001/applications?sort=asc&department=${department}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`, // Add token in the Authorization header
+          'Authorization': `Bearer ${token}`, 
         },
       });
       console.log(response);
-
       const data = await response.json();
-
       if (response.ok) {
         setCandidates(data.data);
       } else {
@@ -246,20 +243,20 @@ export default function Dashboard() {
 
   const handleFilterEvent = async (time) => {
     try {
-      const token = localStorage.getItem('token'); // Get token from localStorage
+      const token = localStorage.getItem('token'); 
       const url = `http://ec2-18-214-60-96.compute-1.amazonaws.com:7001/event/getallevent?timeFrame=${time}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`, // Add token in the Authorization header
+          'Authorization': `Bearer ${token}`, 
         },
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setEvents(data.events); // Update the events list
-        setSelectedEventTime(time); // Update selected category
+        setEvents(data.events);
+
       } else {
         throw new Error(data.message || 'Failed to fetch filtered events');
       }
@@ -370,7 +367,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-lg p-6">
           <div className="flex space-x-4 py-6 px-4">
-            <p className='pt-1.5'>
+            <p className='pt-2.5'>
               {activeTab === 'Job' ? 'Candidate List' : activeTab === 'Event' ? 'Event List' : 'Posted Job List'}
             </p>
             {activeTab === 'Job' && (

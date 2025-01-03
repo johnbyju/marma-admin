@@ -59,13 +59,13 @@ export const deleteEvent = async (eventId) => {
 
     }
 
-    console.log("Event ID to delete:", eventId); // Debugging eventId
-    console.log("Token:", token); // Debugging token
+    console.log("Event ID to delete:", eventId);
+    console.log("Token:", token); 
 
     try {
         const response = await API.delete(`/event/${eventId}`, {
             headers: {
-                Authorization: `Bearer ${token}`, // Ensure proper format
+                Authorization: `Bearer ${token}`,
             },
         });
         console.log("Delete Response:", response.data); // Debugging success response
@@ -189,6 +189,7 @@ export const GetAllPostedJobs = async (data) => {
 
 export const deleteJobPost = async (jobId) => {
 
+
     const token = localStorage.getItem("token");
     if (!token) {
         console.error("No token found in localStorage");
@@ -196,20 +197,19 @@ export const deleteJobPost = async (jobId) => {
 
     }
 
-    console.log("Event ID to delete:", jobId); // Debugging eventId
-    console.log("Token:", token); // Debugging token
+    console.log("Event ID to delete:", jobId); 
+    console.log("Token:", token); 
 
     try {
         const response = await API.delete(`/jobs/${jobId}`, {
             headers: {
-                Authorization: `Bearer ${token}`, // Ensure proper format
+                Authorization: `Bearer ${token}`, 
             },
         });
-        console.log("Delete Response:", response.data); // Debugging success response
+        console.log("Delete Response:", response.data); 
         return response;
     } catch (err) {
         if (err.response) {
-            // Log detailed error response
             console.error("Error Response:", err.response.data);
             throw new Error(err.response.data.message || "Delete request failed");
         } else {
@@ -218,6 +218,9 @@ export const deleteJobPost = async (jobId) => {
         }
     }
 };
+
+
+
 
 
 export default API;
